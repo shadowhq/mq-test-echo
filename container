@@ -1,0 +1,47 @@
+#!/bin/bash
+
+CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REGISTRY=shadowhq
+NAME=mq-test-echo
+IMAGE=$REGISTRY/$NAME
+
+##############################################################################################
+
+COMMAND=$1
+
+# ./container run
+if [ "$COMMAND" == "run" ]; then
+    docker stop $NAME
+    docker rm $NAME
+    docker run -it --env MQ_HOST=shadow-rabbitmq --link shadow-rabbitmq:shadow-rabbitmq --name $NAME $IMAGE
+
+# ./container dev
+elif [ "$COMMAND" == "dev" ]; then
+    docker stop $NAME
+    docker rm $NAME
+    docker run -it --env MQ_HOST=shadow-rabbitmq --link shadow-rabbitmq:shadow-rabbitmq -v `pwd`:/src --name $NAME $IMAGE
+
+# ./container build
+elif [ "$COMMAND" == "build" ]; then
+    GIT_HASH=`git log -1 --pretty=format:"%H"`
+    echo $GIT_HASH > version
+    docker build -t $IMAGE .
+    docker tag -f $IMAGE:latest $IMAGE:$GIT_HASH
+
+# ./container attach
+elif [ "$COMMAND" == "attach" ]; then
+    docker exec -it $NAME bash
+
+# ./container tail
+elif [ "$COMMAND" == "tail" ]; then
+    docker logs -f $NAME
+
+else
+    echo "usage: $0 [command]"
+    echo ""
+    echo "  run        Run the docker image"
+    echo "  build      Build the docker image"
+    echo "  attach     Attach to running container (bash prompt)"
+    echo "  tail       Tail container logs"
+    echo ""
+fi
