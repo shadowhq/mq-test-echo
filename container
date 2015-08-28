@@ -13,13 +13,13 @@ COMMAND=$1
 if [ "$COMMAND" == "run" ]; then
     docker stop $NAME
     docker rm $NAME
-    docker run -it --env MQ_HOST=shadow-rabbitmq --link shadow-rabbitmq:shadow-rabbitmq --name $NAME $IMAGE
+    docker run -it --env MQ_HOST=rabbitmq --link rabbitmq:rabbitmq --name $NAME $IMAGE
 
 # ./container dev
 elif [ "$COMMAND" == "dev" ]; then
     docker stop $NAME
     docker rm $NAME
-    docker run -it --env MQ_HOST=shadow-rabbitmq --link shadow-rabbitmq:shadow-rabbitmq -v `pwd`:/src --name $NAME $IMAGE
+    docker run -it --env MQ_HOST=rabbitmq --link rabbitmq:rabbitmq -v `pwd`:/src --name $NAME $IMAGE
 
 # ./container build
 elif [ "$COMMAND" == "build" ]; then
